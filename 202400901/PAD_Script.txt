@@ -1,0 +1,43 @@
+@@connectionDisplayName: 'Cr4188b_shared_rss_15d72053'
+External.InvokeCloudConnector Connection: 'c9df2734-efc7-4b0e-8f68-1073111a252e' ConnectorId: '/providers/Microsoft.PowerApps/apis/shared_rss' OperationId: 'ListFeedItems' @feedUrl: $'''https://news.ltn.com.tw/rss/society.xml''' @sinceProperty: $'''PublishDate''' @ListFeedItemsResponse=> ListFeedItemsResponse
+WebAutomation.LaunchChrome.LaunchChrome Url: $'''about:blank''' WindowState: WebAutomation.BrowserWindowState.Normal ClearCache: False ClearCookies: False WaitForPageToLoadTimeout: 60 Timeout: 60 PiPUserDataFolderMode: WebAutomation.PiPUserDataFolderModeEnum.AutomaticProfile BrowserInstance=> Browser
+Excel.LaunchExcel.LaunchUnderExistingProcess Visible: True Instance=> ExcelInstance
+LOOP FOREACH CurrentItem IN ListFeedItemsResponse
+    SET url_scrape TO CurrentItem.primaryLink
+    WebAutomation.GoToWebPage.GoToWebPage BrowserInstance: Browser Url: url_scrape WaitForPageToLoadTimeout: 60
+    WebAutomation.GetDetailsOfWebPage BrowserInstance: Browser DetailsType: WebAutomation.DetailsType.Text Details=> WebPageProperty
+    Text.EscapeForRegularExpression Text: WebPageProperty EscapedText=> EscapedText
+    Text.Replace Text: EscapedText TextToFind: $'''\\r\\n''' IsRegEx: False IgnoreCase: False ReplaceWith: $'''%''%''' ActivateEscapeSequences: False Result=> EscapedText
+    Text.Replace Text: EscapedText TextToFind: $'''\"''' IsRegEx: False IgnoreCase: False ReplaceWith: $'''%''%''' ActivateEscapeSequences: False Result=> EscapedText
+    @@copilotGeneratedAction: 'False'
+Scripting.RunDOSCommand.RunDOSCommandWithCodePage DOSCommandOrApplication: $'''C:\\temp\\ibcgpt-4o\\ibcgpt4o.exe prompt=\"提供以下新聞的日期, 標題與內容摘要, 請使用CSV 格式提供回覆以上資訊的回覆, 不須提供額外敘述:  %EscapedText%\"''' Encoding: System.Encoding.utf_8 WorkingDirectory: $'''C:\\temp\\ibcgpt-4o''' StandardOutput=> CommandOutput StandardError=> CommandErrorOutput ExitCode=> CommandExitCode
+    Text.Replace Text: CommandOutput TextToFind: $'''```''' IsRegEx: False IgnoreCase: False ReplaceWith: $'''%''%''' ActivateEscapeSequences: False Result=> gpt4o回傳資訊
+    Text.Replace Text: gpt4o回傳資訊 TextToFind: $'''csv''' IsRegEx: False IgnoreCase: False ReplaceWith: $'''%''%''' ActivateEscapeSequences: False Result=> gpt4o回傳資訊
+    Variables.GenerateDataTableFromCSV.ReadPredefinedSeparator CSVText: gpt4o回傳資訊 TrimFields: True FirstLineContainsColumnNames: True ReadFieldsAsText: False ColumnsSeparator: Variables.CSVColumnsSeparator.SystemDefault CSVTable=> CSVTable
+    Excel.GetFirstFreeColumnRow Instance: ExcelInstance FirstFreeRow=> FirstFreeRow
+    Excel.WriteToExcel.WriteCell Instance: ExcelInstance Value: CSVTable Column: $'''B''' Row: FirstFreeRow
+END
+WebAutomation.CloseWebBrowser BrowserInstance: Browser
+
+# [ControlRepository][PowerAutomateDesktop]
+
+{
+  "ControlRepositorySymbols": [],
+  "ImageRepositorySymbol": {
+    "Repository": "{\r\n  \"Folders\": [],\r\n  \"Images\": [],\r\n  \"Version\": 1\r\n}",
+    "ImportMetadata": {},
+    "Name": "imgrepo"
+  },
+  "ConnectionReferences": [
+    {
+      "ConnectorId": "/providers/Microsoft.PowerApps/apis/shared_rss",
+      "DisplayName": "Cr4188b_shared_rss_15d72053",
+      "InternalId": "c9df2734-efc7-4b0e-8f68-1073111a252e",
+      "IsDisabled": false,
+      "LogicalName": "Cr4188b_shared_rss_15d72053c6434776a09278d6b4283a2d",
+      "IsEmbedded": false,
+      "ConnectionName": "c77040f73eca4088b21224fb1c1fb4e5",
+      "ConnectionDisplayName": "RSS"
+    }
+  ]
+}
