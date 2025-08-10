@@ -1,0 +1,5 @@
+#指令1:
+winget install Microsoft.DotNet.SDK.8
+
+#指令2:
+dotnet tool install --global --add-source https://api.nuget.org/v3/index.json Microsoft.PowerPlatform.Dataverse.MCP

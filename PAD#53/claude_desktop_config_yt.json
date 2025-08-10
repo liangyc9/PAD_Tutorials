@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "商智雲 Dataverse 小幫手": {
+      "command": "Microsoft.PowerPlatform.Dataverse.MCP",
+      "args": [
+          "--ConnectionUrl",
+          "https://make.powerautomate.com/environments/5efe95f2-d2f4-e172-b647-295df21d0090/connections?apiName=shared_commondataserviceforapps&connectionName=90f61e8b1f4d4d4aa113a831ca3f659e",
+        "--MCPServerName",
+        "DataverseMCPServer",
+        "--TenantId",
+        "<您的 Power Platform 環境的Tenant ID>",
+        "--EnableHttpLogging",
+        "true",
+        "--EnableMsalLogging",
+        "false",
+        "--Debug",
+        "false",
+        "--BackendProtocol",
+        "HTTP"
+         ]
+        }
+      }
+}
